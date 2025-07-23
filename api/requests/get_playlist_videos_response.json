@@ -1,0 +1,53 @@
+[
+  {
+    "kind": "youtube#playlistItem",
+    "etag": "umlQRaWqxJ1k1cNNsBmVMm4Ht1A",
+    "id": "VVVIbnlmTXFpUlJHMXUtMk1zU1FMYlhBLjQ5TmlrZUJDeldv",
+    "snippet": {
+      "publishedAt": "2025-07-17T18:56:42Z",
+      "channelId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+      "title": "Why did light bulb lifetimes get shorter?",
+      "description": "Planned obsolescence, explained. #veritasium #engineeering #lightbulbs",
+      "thumbnails": {
+        "default": {
+          "url": "https://i.ytimg.com/vi/49NikeBCzWo/default.jpg",
+          "width": 120,
+          "height": 90
+        },
+        "medium": {
+          "url": "https://i.ytimg.com/vi/49NikeBCzWo/mqdefault.jpg",
+          "width": 320,
+          "height": 180
+        },
+        "high": {
+          "url": "https://i.ytimg.com/vi/49NikeBCzWo/hqdefault.jpg",
+          "width": 480,
+          "height": 360
+        },
+        "standard": {
+          "url": "https://i.ytimg.com/vi/49NikeBCzWo/sddefault.jpg",
+          "width": 640,
+          "height": 480
+        },
+        "maxres": {
+          "url": "https://i.ytimg.com/vi/49NikeBCzWo/maxresdefault.jpg",
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "channelTitle": "Veritasium",
+      "playlistId": "UUHnyfMqiRRG1u-2MsSQLbXA",
+      "position": 0,
+      "resourceId": {
+        "kind": "youtube#video",
+        "videoId": "49NikeBCzWo"
+      },
+      "videoOwnerChannelTitle": "Veritasium",
+      "videoOwnerChannelId": "UCHnyfMqiRRG1u-2MsSQLbXA"
+    },
+    "contentDetails": {
+      "videoId": "49NikeBCzWo",
+      "videoPublishedAt": "2025-07-17T18:56:42Z"
+    }
+  }
+]

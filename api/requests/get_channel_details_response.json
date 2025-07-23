@@ -1,0 +1,69 @@
+{
+  "kind": "youtube#channelListResponse",
+  "etag": "0f5Pxw_huoz50prdh3YyaAffOcE",
+  "pageInfo": {
+    "totalResults": 1,
+    "resultsPerPage": 5
+  },
+  "items": [
+    {
+      "kind": "youtube#channel",
+      "etag": "kV_SLaWo0wmSz91nSP6aSJsAsS8",
+      "id": "UCHnyfMqiRRG1u-2MsSQLbXA",
+      "snippet": {
+        "title": "Veritasium",
+        "description": "An element of truth - videos about science, education, and anything else we find interesting.",
+        "customUrl": "@veritasium",
+        "publishedAt": "2010-07-21T07:18:02Z",
+        "thumbnails": {
+          "default": {
+            "url": "https://yt3.ggpht.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s88-c-k-c0x00ffffff-no-rj",
+            "width": 88,
+            "height": 88
+          },
+          "medium": {
+            "url": "https://yt3.ggpht.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s240-c-k-c0x00ffffff-no-rj",
+            "width": 240,
+            "height": 240
+          },
+          "high": {
+            "url": "https://yt3.ggpht.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s800-c-k-c0x00ffffff-no-rj",
+            "width": 800,
+            "height": 800
+          }
+        },
+        "localized": {
+          "title": "Veritasium",
+          "description": "An element of truth - videos about science, education, and anything else we find interesting."
+        },
+        "country": "US"
+      },
+      "contentDetails": {
+        "relatedPlaylists": {
+          "likes": "",
+          "uploads": "UUHnyfMqiRRG1u-2MsSQLbXA"
+        }
+      },
+      "statistics": {
+        "viewCount": "3432932537",
+        "subscriberCount": "18300000",
+        "hiddenSubscriberCount": false,
+        "videoCount": "446"
+      },
+      "topicDetails": {
+        "topicIds": [
+          "/m/01k8wb"
+        ],
+        "topicCategories": [
+          "https://en.wikipedia.org/wiki/Knowledge"
+        ]
+      },
+      "status": {
+        "privacyStatus": "public",
+        "isLinked": true,
+        "longUploadsStatus": "longUploadsUnspecified",
+        "madeForKids": false
+      }
+    }
+  ]
+}
