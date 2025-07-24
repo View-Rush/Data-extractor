@@ -1,6 +1,8 @@
-google-api-python-client
-python-dotenv
+google-api-python-client~=2.176.0
+python-dotenv~=1.1.1
 pandas
 pyyaml
 apscheduler
 tqdm
+
+protobuf~=6.31.1
