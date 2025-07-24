@@ -2,8 +2,10 @@
 
 from typing import List
 from api.quota_manager import YouTubeQuotaManager
+from api.requests.get_channel_details import GetChannelDataByHandleOrId
 from api.requests.get_video_details import GetVideoDetails
 from storage.storage_manager import StorageManager
+from utils.channel_parser import parse_channel_metadata
 from utils.video_parser import parse_video_stats, parse_video_metadata
 
 
@@ -34,5 +36,26 @@ class YouTubeClient:
             # TODO: Handle metadata already in DB
             self.storage.save_video_metadata(metadata)
             self.storage.save_video_stats(stats)
+
+        return raw_items
+
+    def get_channel_details(self, channel_ids: List[str], part: str = None):
+        """
+        Fetches metadata for one or more YouTube channels.
+
+        Args:
+            channel_ids (list[str]): List of YouTube channel IDs.
+            part (str): Optional comma-separated string for specific parts to retrieve (e.g., "snippet,statistics").
+
+        Returns:
+            list: List of channel metadata dictionaries.
+        """
+        request = GetChannelDataByHandleOrId()
+        raw_items = self.qm.execute(request, channel_ids=channel_ids) if part is None \
+            else self.qm.execute(request, channel_ids=channel_ids, part=part)
+
+        for item in raw_items:
+            metadata = parse_channel_metadata(item)
+            self.storage.save_channel_metadata(metadata)
 
         return raw_items

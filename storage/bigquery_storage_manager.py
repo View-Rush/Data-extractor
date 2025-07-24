@@ -12,6 +12,7 @@ class BigQueryStorageManager(StorageManager):
         self.dataset_id = dataset_id
         self.video_metadata_table = f"{project_id}.{dataset_id}.video_metadata"
         self.video_stats_table = f"{project_id}.{dataset_id}.video_stats"
+        self.channel_metadata_table = f"{project_id}.{dataset_id}.channel_metadata"
 
     def save_video_metadata(self, video_data: dict):
         if "publishedAt" in video_data and isinstance(video_data["publishedAt"], str):
@@ -41,6 +42,27 @@ class BigQueryStorageManager(StorageManager):
         results = self.client.query(query).result()
         return [dict(row) for row in results]
 
+    def save_channel_metadata(self, channel_data: dict):
+        self._insert_row(self.channel_metadata_table, channel_data)
+
+    def get_channel_by_id(self, channel_id: str) -> dict:
+        query = f"""
+            SELECT * FROM `{self.channel_metadata_table}`
+            WHERE id = @channel_id
+            LIMIT 1
+        """
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[bigquery.ScalarQueryParameter("channel_id", "STRING", channel_id)]
+        )
+        results = self.client.query(query, job_config=job_config).result()
+        rows = list(results)
+        return dict(rows[0]) if rows else {}
+
+    def get_all_channels(self) -> list[dict]:
+        query = f"SELECT * FROM `{self.channel_metadata_table}`"
+        results = self.client.query(query).result()
+        return [dict(row) for row in results]
+
     def _insert_row(self, table_id: str, row: dict):
         # Convert datetime fields to ISO strings
         def convert(value):
@@ -67,6 +89,7 @@ class BigQueryStorageManager(StorageManager):
     def create_tables(self):
         self._create_video_metadata_table()
         self._create_video_stats_table()
+        self._create_channel_metadata_table()
 
     def _create_video_metadata_table(self):
         schema = [
@@ -117,3 +140,22 @@ class BigQueryStorageManager(StorageManager):
         except NotFound:
             self.client.create_table(table)
             print(f"Created table: {self.video_stats_table}")
+
+    def _create_channel_metadata_table(self):
+        schema = [
+            bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+            bigquery.SchemaField("title", "STRING"),
+            bigquery.SchemaField("customUrl", "STRING"),
+            bigquery.SchemaField("country", "STRING"),
+            bigquery.SchemaField("uploadsPlaylistId", "STRING"),
+            bigquery.SchemaField("viewCount", "INTEGER"),
+            bigquery.SchemaField("subscriberCount", "INTEGER"),
+        ]
+
+        table = bigquery.Table(self.channel_metadata_table, schema=schema)
+        try:
+            self.client.get_table(self.channel_metadata_table)
+            print(f"Table already exists: {self.channel_metadata_table}")
+        except NotFound:
+            self.client.create_table(table)
+            print(f"Created table: {self.channel_metadata_table}")
