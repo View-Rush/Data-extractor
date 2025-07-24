@@ -42,7 +42,15 @@ class BigQueryStorageManager(StorageManager):
         return [dict(row) for row in results]
 
     def _insert_row(self, table_id: str, row: dict):
-        errors = self.client.insert_rows_json(table_id, [row])
+        # Convert datetime fields to ISO strings
+        def convert(value):
+            if isinstance(value, datetime.datetime):
+                return value.isoformat()
+            return value
+
+        sanitized_row = {k: convert(v) for k, v in row.items()}
+
+        errors = self.client.insert_rows_json(table_id, [sanitized_row])
         if errors:
             logging.error(f"Error inserting row into {table_id}: {errors}")
         else:

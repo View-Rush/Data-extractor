@@ -56,3 +56,5 @@ class GetPlaylistVideos(YouTubeAPIRequest):
     def get_quota(self):
         # playlistItems.list costs 1 unit per request
         return self.requests_count
+
+    # TODO: filter by last 24hrs (or any other criteria)
