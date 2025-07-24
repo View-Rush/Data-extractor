@@ -84,7 +84,7 @@ class SQLiteStorageManager(StorageManager):
         self.conn.execute(sql, values)
         self.conn.commit()
 
-    def get_video_by_id(self, video_id: str) -> dict:
+    def get_video_details_by_id(self, video_id: str) -> dict:
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM video_metadata WHERE id = ?", (video_id,))
         row = cursor.fetchone()

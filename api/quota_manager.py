@@ -34,3 +34,7 @@ class YouTubeQuotaManager:
 
     def get_active_key(self):
         return self.api_keys[self.current_index]
+
+    # TODO: adding more keys
+    # TODO: Keeping track of quota usage
+    # TODO: Connect to a database

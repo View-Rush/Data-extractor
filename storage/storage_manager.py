@@ -12,7 +12,7 @@ class StorageManager(ABC):
         pass
 
     @abstractmethod
-    def get_video_by_id(self, video_id: str) -> dict:
+    def get_video_details_by_id(self, video_id: str) -> dict:
         pass
 
     @abstractmethod

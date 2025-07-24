@@ -23,7 +23,7 @@ class BigQueryStorageManager(StorageManager):
             stats_data["recordedAt"] = self._parse_timestamp(stats_data["recordedAt"])
         self._insert_row(self.video_stats_table, stats_data)
 
-    def get_video_by_id(self, video_id: str) -> dict:
+    def get_video_details_by_id(self, video_id: str) -> dict:
         query = f"""
             SELECT * FROM `{self.video_metadata_table}`
             WHERE id = @video_id
