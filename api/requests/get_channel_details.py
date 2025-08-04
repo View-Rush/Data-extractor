@@ -1,18 +1,16 @@
 # api/requests/get_channel_details.py
 
 from googleapiclient.discovery import Resource
-
 from api.youtube_api_request import YouTubeAPIRequest
-
 
 class GetChannelDataByHandleOrId(YouTubeAPIRequest):
     """
-    Retrieves channel data from YouTube using either a handle (e.g. "@veritasium")
-    or a channel ID (e.g. "UCXYZ...").
+    Retrieves metadata for one or more YouTube channels using either channel IDs
+    or handles (e.g., "@veritasium").
 
     Args:
         service (Resource): Authorized YouTube API service.
-        identifier (str): Channel handle or channel ID.
+        channel_ids (List[str]): List of channel IDs or handles.
         part (str): Comma-separated parts to include in the response.
 
     Returns:
@@ -20,18 +18,36 @@ class GetChannelDataByHandleOrId(YouTubeAPIRequest):
     """
 
     DEFAULT_PARTS = "id,snippet,contentDetails,statistics,topicDetails,status"
+    request_count = 0
 
-    def execute(self, service: Resource, identifier: str, part: str = DEFAULT_PARTS):
-        if identifier.startswith("@"):
-            return service.channels().list(
+
+    def execute(self, service: Resource, channel_ids: list[str], part: str = DEFAULT_PARTS):
+        handles = [c for c in channel_ids if c.startswith("@")]
+        ids = [c for c in channel_ids if not c.startswith("@")]
+
+        items = []
+
+        # Handle channel IDs (can be batched)
+        if ids:
+            for i in range(0, len(ids), 50):  # YouTube API limit is 50 per request
+                response = service.channels().list(
+                    part=part,
+                    id=",".join(ids[i:i + 50])
+                ).execute()
+                items.extend(response.get("items", []))
+                self.request_count += 1
+
+        # Handle handles (must be called one by one)
+        for handle in handles:
+            response = service.channels().list(
                 part=part,
-                forHandle=identifier
+                forHandle=handle
             ).execute()
-        return service.channels().list(
-            part=part,
-            id=identifier
-        ).execute()
+            items.extend(response.get("items", []))
+            self.request_count += 1
+
+        return items
 
     def get_quota(self):
-        # TODO: Implement quota check
-        return 1
+        # Each channels.list call costs 1 unit
+        return self.request_count
