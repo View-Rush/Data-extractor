@@ -2,7 +2,7 @@
 
 from googleapiclient.discovery import build
 from time import sleep
-from api.youtube_api_request import YouTubeAPIRequest
+from src.api.youtube_api_request import YouTubeAPIRequest
 
 class YouTubeQuotaManager:
     def __init__(self, api_keys: list[str], max_retries: int = 3):

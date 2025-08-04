@@ -2,9 +2,9 @@
 
 import os
 from dotenv import load_dotenv
-from api.youtube_client import YouTubeClient
-from api.quota_manager import YouTubeQuotaManager
-from storage.bigquery_storage_manager import BigQueryStorageManager
+from src.api.youtube_client import YouTubeClient
+from src.api.quota_manager import YouTubeQuotaManager
+from src.storage import BigQueryStorageManager
 
 def main():
     load_dotenv()

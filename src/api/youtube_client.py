@@ -1,12 +1,12 @@
 # api/youtube_client.py
 
 from typing import List
-from api.quota_manager import YouTubeQuotaManager
-from api.requests.get_channel_details import GetChannelDataByHandleOrId
-from api.requests.get_video_details import GetVideoDetails
-from storage.storage_manager import StorageManager
-from utils.channel_parser import parse_channel_metadata
-from utils.video_parser import parse_video_stats, parse_video_metadata
+from src.api.quota_manager import YouTubeQuotaManager
+from src.api.requests.get_channel_details import GetChannelDataByHandleOrId
+from src.api.requests.get_video_details import GetVideoDetails
+from src.storage.storage_manager import StorageManager
+from src.utils import parse_channel_metadata
+from src.utils.video_parser import parse_video_stats, parse_video_metadata
 
 
 class YouTubeClient:

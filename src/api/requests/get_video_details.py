@@ -1,7 +1,7 @@
 # api/requests/get_video_details.py
 
 from googleapiclient.discovery import Resource
-from api.youtube_api_request import YouTubeAPIRequest
+from src.api.youtube_api_request import YouTubeAPIRequest
 
 
 class GetVideoDetails(YouTubeAPIRequest):
