@@ -73,3 +73,67 @@ def fetch_unpolled_channels(limit=100):
     LIMIT %s;
     """
     return execute_query(query, (limit,), fetch=True)
+
+
+def insert_channel(channel: dict):
+    query = """
+    INSERT INTO channels (
+        id,
+        title,
+        custom_url,
+        country,
+        uploads_playlist_id,
+        view_count,
+        subscriber_count,
+        last_checked_at,
+        is_active
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (id) DO UPDATE
+    SET
+        title = EXCLUDED.title,
+        custom_url = EXCLUDED.custom_url,
+        country = EXCLUDED.country,
+        uploads_playlist_id = EXCLUDED.uploads_playlist_id,
+        view_count = EXCLUDED.view_count,
+        subscriber_count = EXCLUDED.subscriber_count,
+        last_checked_at = EXCLUDED.last_checked_at,
+        is_active = EXCLUDED.is_active;
+    """
+
+    params = (
+        channel["id"],
+        channel["title"],
+        channel["custom_url"],
+        channel["country"],
+        channel["uploads_playlist_id"],
+        channel["view_count"],
+        channel["subscriber_count"],
+        channel["last_checked_at"],
+        channel["is_active"],
+    )
+
+    execute_query(query, params)
+
+
+def fetch_channels_batch(limit=100, offset=0):
+    query = """
+            SELECT id
+            FROM channels
+            LIMIT %s OFFSET %s; \
+            """
+    return execute_query(query, (limit, offset), fetch=True)
+
+def fetch_all_channels(batch_size=100):
+    all_channels = []
+    offset = 0
+
+    while True:
+        batch = fetch_channels_batch(limit=batch_size, offset=offset)
+        if not batch:
+            break
+        all_channels.extend(batch)
+        offset += batch_size
+
+    return all_channels
+

@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+
 def map_channel_metadata(channel: dict) -> dict:
     snippet = channel.get("snippet", {})
     statistics = channel.get("statistics", {})
