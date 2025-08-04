@@ -35,7 +35,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    schema_file = os.path.join(BASE_DIR, "db/schemas", "psql_schema.sql")
+    schema_file = os.path.join(BASE_DIR, "src/db/schemas", "psql_schema.sql")
 
     if not os.path.exists(schema_file):
         raise FileNotFoundError(f"Schema file not found: {schema_file}")
