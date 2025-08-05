@@ -1,6 +1,8 @@
 # api/youtube_client.py
-
+from datetime import datetime
 from typing import List
+
+from api.requests.get_playlist_videos import GetPlaylistVideos
 from src.api.quota_manager import YouTubeQuotaManager
 from src.api.requests.get_channel_details import GetChannelDataByHandleOrId
 from src.api.requests.get_video_details import GetVideoDetails
@@ -43,3 +45,23 @@ class YouTubeClient:
             else self.qm.execute(request, channel_ids=channel_ids, part=part)
 
         return raw_items
+
+    def get_recent_uploads(self, channel_id: str, since: datetime = None, max_results: int = 50):
+        """
+        Fetch recent uploads from a channel's uploads playlist.
+
+        Args:
+            channel_id (str): YouTube Channel ID (e.g. 'UC...')
+            since (datetime): Only return videos published after this datetime (UTC).
+            max_results (int): Maximum number of videos to fetch.
+
+        Returns:
+            list of dict: Video items.
+        """
+        request = GetPlaylistVideos()
+        return self.qm.execute(
+            request,
+            identifier=channel_id,
+            max_results=max_results,
+            since_datetime=since
+        )

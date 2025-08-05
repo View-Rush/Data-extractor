@@ -120,6 +120,16 @@ def fetch_channels_batch(limit=100, offset=0):
     query = """
             SELECT id
             FROM channels
+            WHERE is_active = TRUE
+            LIMIT %s OFFSET %s; \
+            """
+    return execute_query(query, (limit, offset), fetch=True)
+
+def fetch_channel_upload_playlist_ids_batch(limit=100, offset=0):
+    query = """
+            SELECT uploads_playlist_id
+            FROM channels
+            WHERE is_active = TRUE
             LIMIT %s OFFSET %s; \
             """
     return execute_query(query, (limit, offset), fetch=True)
@@ -137,3 +147,11 @@ def fetch_all_channels(batch_size=100):
 
     return all_channels
 
+
+def mark_channel_inactive(channel_id: str):
+    query = """
+    UPDATE channels
+    SET is_active = FALSE
+    WHERE uploads_playlist_id = %s;
+    """
+    execute_query(query, (channel_id,))
