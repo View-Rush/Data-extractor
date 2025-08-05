@@ -4,8 +4,8 @@ import os
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-from api.requests.get_video_stats_snapshot import GetVideoStatsSnapshot
-from db.bigquery_client import insert_video_stats
+from src.api.requests.get_video_stats_snapshot import GetVideoStatsSnapshot
+from src.db.bigquery_client import insert_video_stats
 from src.api.youtube_client import YouTubeClient
 from src.api.quota_manager import YouTubeQuotaManager
 from src.db.database_client import update_video_stats, increment_video_sample, \
