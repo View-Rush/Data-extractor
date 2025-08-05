@@ -33,4 +33,5 @@ jobs:
         SUPABASE_PASSWORD: ${{ secrets.SUPABASE_PASSWORD }}
         SUPABASE_HOST: ${{ secrets.SUPABASE_HOST }}
         SUPABASE_PORT: ${{ secrets.SUPABASE_PORT }}
+        PYTHONPATH: ${{ github.workspace }}
       run: python scripts/fetch_new_uploads.py
