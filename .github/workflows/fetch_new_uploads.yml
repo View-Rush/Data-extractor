@@ -28,10 +28,10 @@ jobs:
         YOUTUBE_API_KEYS: ${{ secrets.YOUTUBE_API_KEYS }}
         GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         BQ_DATASET_ID: ${{ secrets.BQ_DATASET_ID }}
-        SUPABASE_DB: ${{ secrets.SUPABASE_DB }}
-        SUPABASE_USER: ${{ secrets.SUPABASE_USER }}
-        SUPABASE_PASSWORD: ${{ secrets.SUPABASE_PASSWORD }}
-        SUPABASE_HOST: ${{ secrets.SUPABASE_HOST }}
-        SUPABASE_PORT: ${{ secrets.SUPABASE_PORT }}
+        DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+        DATABASE_USER: ${{ secrets.DATABASE_USER }}
+        DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+        DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         PYTHONPATH: ${{ github.workspace }}
       run: python scripts/fetch_new_uploads.py

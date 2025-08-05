@@ -9,11 +9,13 @@ load_dotenv()
 
 def get_db_connection():
     return psycopg2.connect(
-        dbname=os.getenv("SUPABASE_DB"),
-        user=os.getenv("SUPABASE_USER"),
-        password=os.getenv("SUPABASE_PASSWORD"),
-        host=os.getenv("SUPABASE_HOST"),
-        port=os.getenv("SUPABASE_PORT", "5432"),
+        dbname=os.getenv("DATABASE_NAME"),
+        user=os.getenv("DATABASE_USER"),
+        password=os.getenv("DATABASE_PASSWORD"),
+        host=os.getenv("DATABASE_HOST"),
+        port=os.getenv("DATABASE_PORT", "5432"),
+        sslmode='verify-full',
+        sslrootcert=os.getenv("DATABASE_SSLROOTCERT")
     )
 
 def execute_sql_file(path, drop=False):

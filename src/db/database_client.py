@@ -1,4 +1,4 @@
-# src/db/supabase_client.py
+# src/db/database_client.py
 
 import os
 import psycopg2
@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Environment variables
-DB_HOST = os.getenv("SUPABASE_HOST")
-DB_PORT = os.getenv("SUPABASE_PORT", "5432")
-DB_NAME = os.getenv("SUPABASE_DB")
-DB_USER = os.getenv("SUPABASE_USER")
-DB_PASSWORD = os.getenv("SUPABASE_PASSWORD")
+DB_HOST = os.getenv("DATABASE_HOST")
+DB_PORT = os.getenv("DATABASE_PORT", "5432")
+DB_NAME = os.getenv("DATABASE_NAME")
+DB_USER = os.getenv("DATABASE_USER")
+DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
 
 # Initialize connection pool
 try:
