@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import List
 
-from api.requests.get_playlist_videos import GetPlaylistVideos
+from src.api.requests.get_playlist_videos import GetPlaylistVideos
 from src.api.quota_manager import YouTubeQuotaManager
 from src.api.requests.get_channel_details import GetChannelDataByHandleOrId
 from src.api.requests.get_video_details import GetVideoDetails
