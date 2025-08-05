@@ -45,10 +45,6 @@ def main():
         logger.info("No videos to process.")
         return
 
-    if not video_ids:
-        logger.info("No videos to process.")
-        return
-
     fetcher = GetVideoStatsSnapshot()
 
     try:
