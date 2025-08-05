@@ -1,6 +1,9 @@
 # scripts/fetch_new_uploads.py
+
 import os
 from datetime import datetime, timedelta, timezone
+
+import yaml
 from dotenv import load_dotenv
 from dateutil import parser
 
@@ -11,8 +14,22 @@ from mappers.map_video_metadata import map_video_metadata
 from src.api.youtube_client import YouTubeClient
 from src.api.quota_manager import YouTubeQuotaManager
 
+def load_config(path="config.yaml"):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(base_dir, "..", "config.yaml")
+    config_path = os.path.abspath(config_path)
+
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found at: {config_path}")
+
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
 
 def main():
+    config = load_config()
+
+    max_results = config["youtube"].get("max_results_per_request", 50)
+    lookback_days = config["youtube"].get("lookback_days", 100)
 
     load_dotenv()
     api_keys = os.getenv("YOUTUBE_API_KEYS", "").split(",")
@@ -21,25 +38,29 @@ def main():
 
     yt = YouTubeClient(quota_manager)
 
-    # TODO: for all ids
-    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()[:1]]
+    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()]
 
-    since_time = datetime.now(timezone.utc) - timedelta(days=1000)
+    since_time = datetime.now(timezone.utc) - timedelta(days=lookback_days)
 
     # collect videos so can fetch data with batch API
     video_ids = []
 
     for playlist_id in upload_playlist_ids:
+
         try:
-            videos = yt.get_recent_uploads(playlist_id, since=since_time, max_results=25)
+            videos = yt.get_recent_uploads(playlist_id, since=since_time, max_results=max_results)
             if videos:
                 video_ids.extend(videos)
             print(f"{playlist_id}: {len(videos)} recent videos")
+
         except RuntimeError as e:
-            mark_channel_inactive(playlist_id)
-            print(
-                f"Failed to fetch for {playlist_id}: {e}. Channel marked as inactive."
-            )
+            error_message = str(e).lower()
+            if "404" in error_message:
+                mark_channel_inactive(playlist_id)
+                print(f"Failed to fetch for {playlist_id}: {e}. Channel marked as inactive.")
+            else:
+                print(f"Failed to fetch for {playlist_id}: {e}. Not marking as inactive.")
+
         except Exception as e:
             print(f"Failed to fetch for {playlist_id}: {e}")
 
