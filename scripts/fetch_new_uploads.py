@@ -13,7 +13,7 @@ from src.db.supabase_client import fetch_channel_upload_playlist_ids_batch, mark
 from src.mappers.map_video_metadata import map_video_metadata
 from src.api.youtube_client import YouTubeClient
 from src.api.quota_manager import YouTubeQuotaManager
-from utils.logger import setup_logger
+from src.utils.logger import setup_logger
 
 
 def load_config(path="config.yaml"):
