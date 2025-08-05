@@ -41,5 +41,4 @@ class GetVideoDetails(YouTubeAPIRequest):
 
     def get_quota(self):
         # Each request costs 1 unit per 'part'
-        # TODO: does this scale with multiple parts?
         return self.request_count

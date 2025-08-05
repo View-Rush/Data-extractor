@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2 import pool
 from dotenv import load_dotenv
 
-load_dotenv()  # Load .env if available
+load_dotenv()
 
 # Environment variables
 DB_HOST = os.getenv("SUPABASE_HOST")
@@ -115,7 +115,6 @@ def insert_channel(channel: dict):
 
     execute_query(query, params)
 
-
 def fetch_channels_batch(limit=100, offset=0):
     query = """
             SELECT id
@@ -147,7 +146,6 @@ def fetch_all_channels(batch_size=100):
 
     return all_channels
 
-
 def mark_channel_inactive(channel_id: str):
     query = """
     UPDATE channels
@@ -155,3 +153,80 @@ def mark_channel_inactive(channel_id: str):
     WHERE uploads_playlist_id = %s;
     """
     execute_query(query, (channel_id,))
+
+def insert_video(
+    id,
+    published_at,
+    channel_id,
+    title,
+    description,
+    localized_title,
+    localized_description,
+    thumbnail_default,
+    thumbnail_medium,
+    thumbnail_high,
+    tags,
+    category_id,
+    live_broadcast_content,
+    default_language,
+    default_audio_language,
+    video_duration,
+    view_count,
+    likes_count,
+    favourite_count,
+    comment_count,
+    inserted_at
+):
+    query = """
+    INSERT INTO videos (
+        id,
+        published_at,
+        channel_id,
+        title,
+        description,
+        localized_title,
+        localized_description,
+        thumbnail_default,
+        thumbnail_medium,
+        thumbnail_high,
+        tags,
+        category_id,
+        live_broadcast_content,
+        default_language,
+        default_audio_language,
+        video_duration,
+        view_count,
+        likes_count,
+        favourite_count,
+        comment_count,
+        inserted_at
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (id) DO NOTHING;
+    """
+
+    params = (
+        id,
+        published_at,
+        channel_id,
+        title,
+        description,
+        localized_title,
+        localized_description,
+        thumbnail_default,
+        thumbnail_medium,
+        thumbnail_high,
+        tags,
+        category_id,
+        live_broadcast_content,
+        default_language,
+        default_audio_language,
+        video_duration,
+        view_count,
+        likes_count,
+        favourite_count,
+        comment_count,
+        inserted_at
+    )
+
+    execute_query(query, params)

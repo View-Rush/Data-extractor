@@ -31,10 +31,11 @@ class YouTubeQuotaManager:
                 self._get_next_client()
                 sleep(1)
         raise RuntimeError(
-            "YouTube API request failed after exhausting all available API keys. "
-            "This may be due to quota limits being exceeded or repeated request errors. "
-            "Please check your API quota usage or verify the request parameters."
+            "YouTube API request failed after exhausting all available API keys. \n"
+            "This may be due to quota limits being exceeded or repeated request errors.\n "
+            "Please check your API quota usage or verify the request parameters.\n"
         )
+
     def get_active_key(self):
         return self.api_keys[self.current_index]
 
