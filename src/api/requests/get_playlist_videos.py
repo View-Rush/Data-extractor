@@ -25,7 +25,7 @@ class GetPlaylistVideos(YouTubeAPIRequest):
         playlist_id = identifier
         if identifier.startswith("UC"):
             channel_response = service.channels().list(
-                part="contentDetails.relatedPlaylists.uploads",
+                part="contentDetails",
                 id=identifier
             ).execute()
             playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
