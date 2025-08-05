@@ -1,7 +1,7 @@
 # api/requests/get_video_details.py
 
 from googleapiclient.discovery import Resource
-from api.youtube_api_request import YouTubeAPIRequest
+from src.api.youtube_api_request import YouTubeAPIRequest
 
 
 class GetVideoDetails(YouTubeAPIRequest):
@@ -41,5 +41,4 @@ class GetVideoDetails(YouTubeAPIRequest):
 
     def get_quota(self):
         # Each request costs 1 unit per 'part'
-        # TODO: does this scale with multiple parts?
         return self.request_count

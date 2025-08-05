@@ -1,0 +1,115 @@
+# scripts/fetch_new_uploads.py
+
+import os
+from datetime import datetime, timedelta, timezone
+
+import yaml
+from dotenv import load_dotenv
+from dateutil import parser
+
+from src.api.requests.get_video_details import GetVideoDetails
+from src.db.supabase_client import fetch_channel_upload_playlist_ids_batch, mark_channel_inactive, insert_video, \
+    insert_video_schedule
+from src.mappers.map_video_metadata import map_video_metadata
+from src.api.youtube_client import YouTubeClient
+from src.api.quota_manager import YouTubeQuotaManager
+from src.utils.logger import setup_logger
+
+
+def load_config(path="config.yaml"):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(base_dir, "..", "config.yaml")
+    config_path = os.path.abspath(config_path)
+
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found at: {config_path}")
+
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
+
+config = load_config()
+
+# Setup logger
+logger = setup_logger(__name__, config["logging"])
+
+
+def main():
+
+    max_results = config["youtube"].get("max_results_per_request", 50)
+    lookback_days = config["youtube"].get("lookback_days", 100)
+
+    load_dotenv()
+    api_keys = os.getenv("YOUTUBE_API_KEYS", "").split(",")
+
+    quota_manager = YouTubeQuotaManager(api_keys)
+
+    yt = YouTubeClient(quota_manager)
+
+    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()[:10]]
+
+    since_time = datetime.now(timezone.utc) - timedelta(days=lookback_days)
+
+    # collect videos so can fetch data with batch API
+    video_ids = []
+
+    for playlist_id in upload_playlist_ids:
+
+        try:
+            videos = yt.get_recent_uploads(playlist_id, since=since_time, max_results=max_results)
+            if videos:
+                video_ids.extend(videos)
+            logger.info(f"{playlist_id}: {len(videos)} recent videos")
+
+        except RuntimeError as e:
+            error_message = str(e).lower()
+            if "404" in error_message:
+                mark_channel_inactive(playlist_id)
+                logger.warning(f"Failed to fetch for {playlist_id}: {e}. Channel marked as inactive.")
+            else:
+                logger.error(f"Failed to fetch for {playlist_id}: {e}. Not marking as inactive.")
+        except Exception as e:
+            logger.error(f"Failed to fetch for {playlist_id}: {e}")
+
+    # Step 2: Get video details in batches
+    if not video_ids:
+        logger.info("No new video IDs found.")
+        return
+
+    video_details_fetcher = GetVideoDetails()
+    try:
+        video_details = quota_manager.execute(video_details_fetcher, video_ids=video_ids)
+    except Exception as e:
+        logger.error(f"Failed to fetch video details: {e}")
+        return
+
+    # Step 3: Map and insert video details
+    logger.info(f"Fetched {len(video_details)} full video records")
+
+    for video in video_details:
+        try:
+            video_record = map_video_metadata(video)
+            insert_video(**video_record)
+            logger.info(f"Inserted video: {video_record['id']}")
+
+            # Parse published_at to datetime for upload_datetime
+            published_at_str = video_record.get("published_at")
+            upload_datetime = parser.isoparse(published_at_str) if published_at_str else None
+
+            # Calculate bin_id as the hour of the upload time (0-23)
+            bin_id = upload_datetime.hour if upload_datetime else None
+
+            if upload_datetime:
+                insert_video_schedule(
+                    video_id=video_record["id"],
+                    upload_datetime=upload_datetime,
+                    current_sample=0,
+                    bin_id=bin_id
+                )
+
+            logger.info(f"Inserted video schedule: {video_record['id']}")
+
+        except Exception as e:
+            logger.exception(f"Failed to insert video {video.get('id')}: {e}")
+
+if __name__ == "__main__":
+    main()

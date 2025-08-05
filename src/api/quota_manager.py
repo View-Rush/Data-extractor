@@ -2,7 +2,7 @@
 
 from googleapiclient.discovery import build
 from time import sleep
-from api.youtube_api_request import YouTubeAPIRequest
+from src.api.youtube_api_request import YouTubeAPIRequest
 
 class YouTubeQuotaManager:
     def __init__(self, api_keys: list[str], max_retries: int = 3):
@@ -30,7 +30,11 @@ class YouTubeQuotaManager:
                 retries += 1
                 self._get_next_client()
                 sleep(1)
-        raise Exception("All API keys failed or quota exceeded.")
+        raise RuntimeError(
+            "YouTube API request failed after exhausting all available API keys. \n"
+            "This may be due to quota limits being exceeded or repeated request errors.\n "
+            "Please check your API quota usage or verify the request parameters.\n"
+        )
 
     def get_active_key(self):
         return self.api_keys[self.current_index]

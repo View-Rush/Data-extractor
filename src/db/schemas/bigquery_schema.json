@@ -1,0 +1,9 @@
+[
+  { "name": "videoId", "type": "STRING", "mode": "REQUIRED" },
+  { "name": "recordedAt", "type": "TIMESTAMP", "mode": "REQUIRED" },
+  { "name": "dayIndex", "type": "INTEGER", "mode": "NULLABLE" },
+  { "name": "viewCount", "type": "INTEGER", "mode": "NULLABLE" },
+  { "name": "likeCount", "type": "INTEGER", "mode": "NULLABLE" },
+  { "name": "commentCount", "type": "INTEGER", "mode": "NULLABLE" },
+  { "name": "fetchedFrom", "type": "STRING", "mode": "NULLABLE" }
+]

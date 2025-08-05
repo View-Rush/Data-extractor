@@ -2,7 +2,7 @@
 
 from google.cloud import bigquery
 from google.api_core.exceptions import NotFound
-from storage.storage_manager import StorageManager
+from src.storage.storage_manager import StorageManager
 import datetime
 import logging
 

@@ -1,0 +1,8 @@
+youtube:
+  max_results_per_request: 50
+  lookback_days: 1
+
+logging:
+  level: INFO  # Can be DEBUG, INFO, WARNING, ERROR, CRITICAL
+  enable_file_logging: false
+  file_path: logs/app.log
