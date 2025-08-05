@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from src.mappers.map_channel_metadata import map_channel_metadata
 from src.api.youtube_client import YouTubeClient
 from src.api.quota_manager import YouTubeQuotaManager
-from src.db.supabase_client import insert_channel, fetch_all_channels
+from src.db.database_client import insert_channel, fetch_all_channels
 from src.utils.logger import setup_logger
 import yaml
 
