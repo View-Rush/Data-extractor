@@ -13,6 +13,8 @@ from db.supabase_client import fetch_channel_upload_playlist_ids_batch, mark_cha
 from mappers.map_video_metadata import map_video_metadata
 from src.api.youtube_client import YouTubeClient
 from src.api.quota_manager import YouTubeQuotaManager
+from utils.logger import setup_logger
+
 
 def load_config(path="config.yaml"):
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,8 +27,13 @@ def load_config(path="config.yaml"):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
+config = load_config()
+
+# Setup logger
+logger = setup_logger(__name__, config["logging"])
+
+
 def main():
-    config = load_config()
 
     max_results = config["youtube"].get("max_results_per_request", 50)
     lookback_days = config["youtube"].get("lookback_days", 100)
@@ -38,7 +45,7 @@ def main():
 
     yt = YouTubeClient(quota_manager)
 
-    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()]
+    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()[:10]]
 
     since_time = datetime.now(timezone.utc) - timedelta(days=lookback_days)
 
@@ -51,40 +58,38 @@ def main():
             videos = yt.get_recent_uploads(playlist_id, since=since_time, max_results=max_results)
             if videos:
                 video_ids.extend(videos)
-            print(f"{playlist_id}: {len(videos)} recent videos")
+            logger.info(f"{playlist_id}: {len(videos)} recent videos")
 
         except RuntimeError as e:
             error_message = str(e).lower()
             if "404" in error_message:
                 mark_channel_inactive(playlist_id)
-                print(f"Failed to fetch for {playlist_id}: {e}. Channel marked as inactive.")
+                logger.warning(f"Failed to fetch for {playlist_id}: {e}. Channel marked as inactive.")
             else:
-                print(f"Failed to fetch for {playlist_id}: {e}. Not marking as inactive.")
-
+                logger.error(f"Failed to fetch for {playlist_id}: {e}. Not marking as inactive.")
         except Exception as e:
-            print(f"Failed to fetch for {playlist_id}: {e}")
+            logger.error(f"Failed to fetch for {playlist_id}: {e}")
 
     # Step 2: Get video details in batches
     if not video_ids:
-        print("No new video IDs found.")
+        logger.info("No new video IDs found.")
         return
 
     video_details_fetcher = GetVideoDetails()
     try:
         video_details = quota_manager.execute(video_details_fetcher, video_ids=video_ids)
     except Exception as e:
-        print(f"Failed to fetch video details: {e}")
+        logger.error(f"Failed to fetch video details: {e}")
         return
 
     # Step 3: Map and insert video details
-    print(f"Fetched {len(video_details)} full video records")
+    logger.info(f"Fetched {len(video_details)} full video records")
 
     for video in video_details:
         try:
             video_record = map_video_metadata(video)
             insert_video(**video_record)
-
-            print(f"Inserted video: {video_record['id']}")
+            logger.info(f"Inserted video: {video_record['id']}")
 
             # Parse published_at to datetime for upload_datetime
             published_at_str = video_record.get("published_at")
@@ -101,10 +106,10 @@ def main():
                     bin_id=bin_id
                 )
 
-            print(f"Inserted video schedule: {video_record['id']}")
+            logger.info(f"Inserted video schedule: {video_record['id']}")
 
         except Exception as e:
-            print(f"Failed to insert video {video.get('id')}: {e}")
+            logger.exception(f"Failed to insert video {video.get('id')}: {e}")
 
 if __name__ == "__main__":
     main()
