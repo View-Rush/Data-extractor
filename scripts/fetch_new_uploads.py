@@ -45,7 +45,7 @@ def main():
 
     yt = YouTubeClient(quota_manager)
 
-    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()[:10]]
+    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()]
 
     since_time = datetime.now(timezone.utc) - timedelta(days=lookback_days)
 
