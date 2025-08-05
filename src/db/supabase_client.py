@@ -230,3 +230,17 @@ def insert_video(
     )
 
     execute_query(query, params)
+
+def insert_video_schedule(video_id, upload_datetime, bin_id, current_sample=0):
+    query = """
+    INSERT INTO video_schedule (
+        video_id,
+        upload_datetime,
+        current_sample,
+        bin_id
+    )
+    VALUES (%s, %s, %s, %s)
+    ON CONFLICT (video_id) DO NOTHING;
+    """
+    params = (video_id, upload_datetime, current_sample, bin_id)
+    execute_query(query, params)

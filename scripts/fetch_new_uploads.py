@@ -2,9 +2,11 @@
 import os
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
+from dateutil import parser
 
 from api.requests.get_video_details import GetVideoDetails
-from db.supabase_client import fetch_channel_upload_playlist_ids_batch, mark_channel_inactive, insert_video
+from db.supabase_client import fetch_channel_upload_playlist_ids_batch, mark_channel_inactive, insert_video, \
+    insert_video_schedule
 from mappers.map_video_metadata import map_video_metadata
 from src.api.youtube_client import YouTubeClient
 from src.api.quota_manager import YouTubeQuotaManager
@@ -60,6 +62,26 @@ def main():
         try:
             video_record = map_video_metadata(video)
             insert_video(**video_record)
+
+            print(f"Inserted video: {video_record['id']}")
+
+            # Parse published_at to datetime for upload_datetime
+            published_at_str = video_record.get("published_at")
+            upload_datetime = parser.isoparse(published_at_str) if published_at_str else None
+
+            # Calculate bin_id as the hour of the upload time (0-23)
+            bin_id = upload_datetime.hour if upload_datetime else None
+
+            if upload_datetime:
+                insert_video_schedule(
+                    video_id=video_record["id"],
+                    upload_datetime=upload_datetime,
+                    current_sample=0,
+                    bin_id=bin_id
+                )
+
+            print(f"Inserted video schedule: {video_record['id']}")
+
         except Exception as e:
             print(f"Failed to insert video {video.get('id')}: {e}")
 
