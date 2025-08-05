@@ -244,3 +244,44 @@ def insert_video_schedule(video_id, upload_datetime, bin_id, current_sample=0):
     """
     params = (video_id, upload_datetime, current_sample, bin_id)
     execute_query(query, params)
+
+def update_video_stats(video_id: str, view_count: int, likes_count: int, favourite_count: int, comment_count: int):
+    query = """
+    UPDATE videos
+    SET 
+        view_count = %s,
+        likes_count = %s,
+        favourite_count = %s,
+        comment_count = %s
+    WHERE id = %s;
+    """
+    execute_query(query, (view_count, likes_count, favourite_count, comment_count, video_id))
+
+def increment_video_sample(video_id: str):
+    query = """
+    UPDATE video_schedule
+    SET current_sample = current_sample + 1
+    WHERE video_id = %s;
+    """
+    execute_query(query, (video_id,))
+
+def get_current_sample(video_id: str) -> int:
+    query = """
+    SELECT current_sample
+    FROM video_schedule
+    WHERE video_id = %s
+    LIMIT 1;
+    """
+    result = execute_query(query, (video_id,), fetch=True)
+    return result[0] if result else None
+
+def fetch_videos_for_bin_paginated(bin_id: int, batch_size: int = 100, offset: int = 0):
+    query = """
+    SELECT vs.video_id
+    FROM video_schedule vs
+    WHERE vs.bin_id = %s AND vs.current_sample < 31
+    ORDER BY vs.upload_datetime
+    OFFSET %s
+    LIMIT %s;
+    """
+    return execute_query(query, (bin_id, offset, batch_size), fetch=True)
