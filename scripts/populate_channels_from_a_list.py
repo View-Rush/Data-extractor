@@ -1,4 +1,6 @@
 import os
+from datetime import datetime, timezone
+
 from dotenv import load_dotenv
 
 from src.mappers.map_channel_metadata import map_channel_metadata
@@ -26,6 +28,12 @@ logger = setup_logger(__name__, config["logging"])
 
 
 def main():
+    logger.info("")
+    logger.info("=" * 60)
+    logger.info(f"Starting insert_channels_from_file run at {datetime.now(timezone.utc).isoformat()} UTC")
+    logger.info("=" * 60)
+    logger.info("")
+
     load_dotenv()
 
     # Load API keys

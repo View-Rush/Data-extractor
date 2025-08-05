@@ -27,6 +27,12 @@ yt_client = YouTubeClient(quota_manager)
 
 
 def main():
+    logger.info("")
+    logger.info("=" * 60)
+    logger.info(f"Starting update_video_stats_hourly run at {datetime.now(timezone.utc).isoformat()} UTC")
+    logger.info("=" * 60)
+    logger.info("")
+
     current_hour = datetime.now(timezone.utc).hour
     logger.info(f"Fetching videos in bin {current_hour}...")
 
