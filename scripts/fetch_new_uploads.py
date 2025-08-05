@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from dateutil import parser
 
 from src.api.requests.get_video_details import GetVideoDetails
-from db.supabase_client import fetch_channel_upload_playlist_ids_batch, mark_channel_inactive, insert_video, \
+from src.db.supabase_client import fetch_channel_upload_playlist_ids_batch, mark_channel_inactive, insert_video, \
     insert_video_schedule
 from src.mappers.map_video_metadata import map_video_metadata
 from src.api.youtube_client import YouTubeClient
