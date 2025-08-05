@@ -35,6 +35,12 @@ logger = setup_logger(__name__, config["logging"])
 
 def main():
 
+    logger.info("")
+    logger.info("=" * 60)
+    logger.info(f"Starting fetch_new_uploads run at {datetime.now(timezone.utc).isoformat()}")
+    logger.info("=" * 60)
+    logger.info("")
+
     max_results = config["youtube"].get("max_results_per_request", 50)
     lookback_days = config["youtube"].get("lookback_days", 100)
 
