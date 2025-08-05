@@ -1,0 +1,36 @@
+name: Daily Fetch New Uploads
+
+on:
+  schedule:
+    - cron: '30 1 * * *'  # Runs every day at 1:30 UTC: might not be busy
+  workflow_dispatch:      # Allows manual trigger
+
+jobs:
+  fetch_uploads:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run fetch_new_uploads.py
+      env:
+        YOUTUBE_API_KEYS: ${{ secrets.YOUTUBE_API_KEYS }}
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        BQ_DATASET_ID: ${{ secrets.BQ_DATASET_ID }}
+        SUPABASE_DB: ${{ secrets.SUPABASE_DB }}
+        SUPABASE_USER: ${{ secrets.SUPABASE_USER }}
+        SUPABASE_PASSWORD: ${{ secrets.SUPABASE_PASSWORD }}
+        SUPABASE_HOST: ${{ secrets.SUPABASE_HOST }}
+        SUPABASE_PORT: ${{ secrets.SUPABASE_PORT }}
+      run: python scripts/fetch_new_uploads.py
