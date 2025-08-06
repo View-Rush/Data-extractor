@@ -10,6 +10,7 @@ class YouTubeQuotaManager:
         self.max_retries = max_retries
         self.clients = [build("youtube", "v3", developerKey=key) for key in api_keys]
         self.current_index = 0
+        self.total_quota = 0
 
     def _get_next_client(self):
         self.current_index = (self.current_index + 1) % len(self.clients)
@@ -24,7 +25,8 @@ class YouTubeQuotaManager:
             try:
                 client = self._get_client()
                 result = request_obj.execute(client, *args, **kwargs)
-                return result
+                self.total_quota += result[1]
+                return result[0]
             except Exception as e:
                 print(f"[QuotaManager] Error (key {self.current_index}): {e}")
                 retries += 1
@@ -39,6 +41,4 @@ class YouTubeQuotaManager:
     def get_active_key(self):
         return self.api_keys[self.current_index]
 
-    # TODO: adding more keys
     # TODO: Keeping track of quota usage
-    # TODO: Connect to a database

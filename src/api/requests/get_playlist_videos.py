@@ -19,9 +19,14 @@ class GetPlaylistVideos(YouTubeAPIRequest):
         list: List of video items (dicts).
     """
 
-    def execute(self, service: Resource, identifier: str, max_results: int = 50, since_datetime: datetime = None) \
+    MAX_RESULTS_PER_PAGE = 50
+
+    def execute(self, service: Resource, identifier: str, since_datetime: datetime = None) \
             -> tuple[list[dict], int]:
         requests_count = 0
+        video_ids = []
+        next_page_token = None
+
         # handle channel IDs
         playlist_id = identifier
         if identifier.startswith("UC"):
@@ -30,37 +35,36 @@ class GetPlaylistVideos(YouTubeAPIRequest):
                 id=identifier
             ).execute()
             playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+            requests_count += 1
 
-        requests_count += 1
-        videos = []
-        next_page_token = None
-
-        part = "contentDetails"
-
-        while len(videos) < max_results:
-            remaining = max_results - len(videos)
+        while True:
             response = service.playlistItems().list(
-                part=part,
+                part="contentDetails",
                 playlistId=playlist_id,
-                maxResults=min(50, remaining),
+                maxResults=self.MAX_RESULTS_PER_PAGE,
                 pageToken=next_page_token
             ).execute()
 
-            page_items = response["items"]
-
-            if since_datetime:
-                page_items = [
-                    item["contentDetails"]["videoId"] for item in page_items
-                    if "videoPublishedAt" in item["contentDetails"]
-                       and datetime.strptime(item["contentDetails"]["videoPublishedAt"], "%Y-%m-%dT%H:%M:%SZ")
-                       .replace(tzinfo=timezone.utc) > since_datetime
-                ]
-
-            videos.extend(page_items)
             requests_count += 1
+            items = response["items"]
+
+            for item in items:
+                content = item["contentDetails"]
+                published_at_str = content.get("videoPublishedAt")
+
+                if not published_at_str:
+                    continue  # skip malformed entries
+
+                published_at = datetime.strptime(published_at_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+
+                # Stop if this video is older than since_datetime
+                if since_datetime and published_at <= since_datetime:
+                    return video_ids, requests_count
+
+                video_ids.append(content["videoId"])
 
             next_page_token = response.get("nextPageToken")
             if not next_page_token:
                 break
 
-        return videos, requests_count
+        return video_ids, requests_count

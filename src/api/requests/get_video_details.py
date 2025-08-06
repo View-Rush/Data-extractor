@@ -21,10 +21,6 @@ class GetVideoDetails(YouTubeAPIRequest):
     MAX_IDS_PER_REQUEST = 50
 
     def execute(self, service: Resource, video_ids: list[str], part: str = DEFAULT_PARTS) -> tuple[list[dict], int]:
-        # TODO: handle without errors
-        if not isinstance(video_ids, list):
-            raise TypeError("video_ids must be a list of strings")
-
         request_count = 0
         all_items = []
 
