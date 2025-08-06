@@ -38,13 +38,12 @@ class GetChannelDataByHandleOrId(YouTubeAPIRequest):
                 request_count += 1
 
         # Handle handles (must be called one by one)
-        if handles:
-            for handle in handles:
-                response = service.channels().list(
-                    part=part,
-                    forHandle=handle
-                ).execute()
-                items.extend(response.get("items", []))
-                request_count += 1
+        for handle in handles:
+            response = service.channels().list(
+                part=part,
+                forHandle=handle
+            ).execute()
+            items.extend(response.get("items", []))
+            request_count += 1
 
         return items, request_count
