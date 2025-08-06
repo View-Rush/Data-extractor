@@ -7,6 +7,7 @@ import yaml
 from dotenv import load_dotenv
 from dateutil import parser
 
+from db.database_client import fetch_all_channels
 from src.api.requests.get_video_details import GetVideoDetails
 from src.db.database_client import fetch_channel_upload_playlist_ids_batch, mark_channel_inactive, insert_video, \
     insert_video_schedule
@@ -51,7 +52,7 @@ def main():
 
     yt = YouTubeClient(quota_manager)
 
-    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_channel_upload_playlist_ids_batch()]
+    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_all_channels()]
 
     since_time = datetime.now(timezone.utc) - timedelta(days=lookback_days)
 
