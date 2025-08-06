@@ -46,7 +46,7 @@ class YouTubeClient:
 
         return raw_items
 
-    def get_recent_uploads(self, channel_id: str, since: datetime = None, max_results: int = 50):
+    def get_recent_uploads(self, channel_id: str, since: datetime = None):
         """
         Fetch recent uploads from a channel's uploads playlist.
 
@@ -62,6 +62,5 @@ class YouTubeClient:
         return self.qm.execute(
             request,
             identifier=channel_id,
-            max_results=max_results,
             since_datetime=since
         )

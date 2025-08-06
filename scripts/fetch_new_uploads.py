@@ -27,54 +27,31 @@ def load_config(path="config.yaml"):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
+
+# config
 config = load_config()
+lookback_days = config["youtube"].get("lookback_days", 1)
+
+load_dotenv()
+api_keys = os.getenv("YOUTUBE_API_KEYS", "").split(",")
 
 # Setup logger
 logger = setup_logger(__name__, config["logging"])
 
 
 def main():
-
-    logger.info("")
-    logger.info("=" * 60)
-    logger.info(f"Starting fetch_new_uploads run at {datetime.now(timezone.utc).isoformat()}")
-    logger.info("=" * 60)
-    logger.info("")
-
-    max_results = config["youtube"].get("max_results_per_request", 50)
-    lookback_days = config["youtube"].get("lookback_days", 100)
-
-    load_dotenv()
-    api_keys = os.getenv("YOUTUBE_API_KEYS", "").split(",")
+    event_start_log()
 
     quota_manager = YouTubeQuotaManager(api_keys)
-
     yt = YouTubeClient(quota_manager)
-
-    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_all_channels()]
 
     since_time = datetime.now(timezone.utc) - timedelta(days=lookback_days)
 
     # collect videos so can fetch data with batch API
-    video_ids = []
+    upload_playlist_ids = [playlist_id[0] for playlist_id in fetch_all_channels()]
+    logger.info(f"Found {len(upload_playlist_ids)} active channels")
 
-    for playlist_id in upload_playlist_ids:
-
-        try:
-            videos = yt.get_recent_uploads(playlist_id, since=since_time, max_results=max_results)
-            if videos:
-                video_ids.extend(videos)
-            logger.info(f"{playlist_id}: {len(videos)} recent videos")
-
-        except RuntimeError as e:
-            error_message = str(e).lower()
-            if "404" in error_message:
-                mark_channel_inactive(playlist_id)
-                logger.warning(f"Failed to fetch for {playlist_id}: {e}. Channel marked as inactive.")
-            else:
-                logger.error(f"Failed to fetch for {playlist_id}: {e}. Not marking as inactive.")
-        except Exception as e:
-            logger.error(f"Failed to fetch for {playlist_id}: {e}")
+    video_ids = fetch_recent_video_ids(since_time, upload_playlist_ids, yt)
 
     # Step 2: Get video details in batches
     if not video_ids:
@@ -91,6 +68,7 @@ def main():
     # Step 3: Map and insert video details
     logger.info(f"Fetched {len(video_details)} full video records")
 
+    inserted_video_count = 0
     for video in video_details:
         try:
             video_record = map_video_metadata(video)
@@ -113,9 +91,42 @@ def main():
                 )
 
             logger.info(f"Inserted video schedule: {video_record['id']}")
+            inserted_video_count += 1
+
 
         except Exception as e:
             logger.exception(f"Failed to insert video {video.get('id')}: {e}")
+
+    logger.info(f"Inserted {inserted_video_count} videos")
+
+def fetch_recent_video_ids(since_time: datetime, upload_playlist_ids: list[str], yt: YouTubeClient) -> list[str]:
+    video_ids = []
+    for playlist_id in upload_playlist_ids:
+        try:
+            videos = yt.get_recent_uploads(playlist_id, since=since_time)
+            if videos:
+                video_ids.extend(videos)
+            logger.info(f"{playlist_id}: {len(videos)} recent videos")
+
+        except RuntimeError as e:
+            error_message = str(e).lower()
+            if "404" in error_message:
+                mark_channel_inactive(playlist_id)
+                logger.warning(f"Failed to fetch for {playlist_id}: {e}. Channel marked as inactive.")
+            else:
+                logger.error(f"Failed to fetch for {playlist_id}: {e}. Not marking as inactive.")
+        except Exception as e:
+            logger.error(f"Failed to fetch for {playlist_id}: {e}")
+    return video_ids
+
+
+def event_start_log():
+    logger.info("")
+    logger.info("=" * 60)
+    logger.info(f"Starting fetch_new_uploads run at {datetime.now(timezone.utc).isoformat()}")
+    logger.info("=" * 60)
+    logger.info("")
+
 
 if __name__ == "__main__":
     main()
