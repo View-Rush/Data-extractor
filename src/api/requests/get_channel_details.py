@@ -18,10 +18,10 @@ class GetChannelDataByHandleOrId(YouTubeAPIRequest):
     """
 
     DEFAULT_PARTS = "id,snippet,contentDetails,statistics,topicDetails,status"
-    request_count = 0
 
 
-    def execute(self, service: Resource, channel_ids: list[str], part: str = DEFAULT_PARTS):
+    def execute(self, service: Resource, channel_ids: list[str], part: str = DEFAULT_PARTS) -> tuple[list[dict], int]:
+        request_count = 0
         handles = [c for c in channel_ids if c.startswith("@")]
         ids = [c for c in channel_ids if not c.startswith("@")]
 
@@ -35,19 +35,16 @@ class GetChannelDataByHandleOrId(YouTubeAPIRequest):
                     id=",".join(ids[i:i + 50])
                 ).execute()
                 items.extend(response.get("items", []))
-                self.request_count += 1
+                request_count += 1
 
         # Handle handles (must be called one by one)
-        for handle in handles:
-            response = service.channels().list(
-                part=part,
-                forHandle=handle
-            ).execute()
-            items.extend(response.get("items", []))
-            self.request_count += 1
+        if handles:
+            for handle in handles:
+                response = service.channels().list(
+                    part=part,
+                    forHandle=handle
+                ).execute()
+                items.extend(response.get("items", []))
+                request_count += 1
 
-        return items
-
-    def get_quota(self):
-        # Each channels.list call costs 1 unit
-        return self.request_count
+        return items, request_count

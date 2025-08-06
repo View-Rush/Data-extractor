@@ -18,9 +18,10 @@ class GetPlaylistVideos(YouTubeAPIRequest):
     Returns:
         list: List of video items (dicts).
     """
-    requests_count = 0
 
-    def execute(self, service: Resource, identifier: str, max_results: int = 50, since_datetime: datetime = None):
+    def execute(self, service: Resource, identifier: str, max_results: int = 50, since_datetime: datetime = None) \
+            -> tuple[list[dict], int]:
+        requests_count = 0
         # handle channel IDs
         playlist_id = identifier
         if identifier.startswith("UC"):
@@ -30,7 +31,7 @@ class GetPlaylistVideos(YouTubeAPIRequest):
             ).execute()
             playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
 
-        self.requests_count += 1
+        requests_count += 1
         videos = []
         next_page_token = None
 
@@ -56,14 +57,10 @@ class GetPlaylistVideos(YouTubeAPIRequest):
                 ]
 
             videos.extend(page_items)
-            self.requests_count += 1
+            requests_count += 1
 
             next_page_token = response.get("nextPageToken")
             if not next_page_token:
                 break
 
-        return videos
-
-    def get_quota(self):
-        # playlistItems.list costs 1 unit per request
-        return self.requests_count
+        return videos, requests_count

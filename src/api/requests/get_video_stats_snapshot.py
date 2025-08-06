@@ -19,9 +19,9 @@ class GetVideoStatsSnapshot(YouTubeAPIRequest):
 
     PART = "id,statistics"
     MAX_IDS_PER_REQUEST = 50
-    request_count = 0
 
-    def execute(self, service: Resource, video_ids):
+    def execute(self, service: Resource, video_ids) -> tuple[list[dict], int]:
+        request_count = 0
         if isinstance(video_ids, str):
             video_ids = [video_ids]
 
@@ -34,11 +34,8 @@ class GetVideoStatsSnapshot(YouTubeAPIRequest):
                 id=",".join(chunk)
             ).execute()
 
-            self.request_count += 1
+            request_count += 1
             items = response.get("items", [])
             all_items.extend(items)
 
-        return all_items
-
-    def get_quota(self):
-        return self.request_count
+        return all_items, request_count

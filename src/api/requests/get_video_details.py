@@ -19,12 +19,13 @@ class GetVideoDetails(YouTubeAPIRequest):
 
     DEFAULT_PARTS = "id,snippet,contentDetails,statistics,status,topicDetails"
     MAX_IDS_PER_REQUEST = 50
-    request_count = 0
 
-    def execute(self, service: Resource, video_ids, part: str = DEFAULT_PARTS):
-        if isinstance(video_ids, str):
-            video_ids = [video_ids]
+    def execute(self, service: Resource, video_ids: list[str], part: str = DEFAULT_PARTS) -> tuple[list[dict], int]:
+        # TODO: handle without errors
+        if not isinstance(video_ids, list):
+            raise TypeError("video_ids must be a list of strings")
 
+        request_count = 0
         all_items = []
 
         for i in range(0, len(video_ids), self.MAX_IDS_PER_REQUEST):
@@ -33,12 +34,9 @@ class GetVideoDetails(YouTubeAPIRequest):
                 part=part,
                 id=",".join(chunk)
             ).execute()
-            self.request_count += 1
+
+            request_count += 1
             items = response.get("items", [])
             all_items.extend(items)
 
-        return all_items
-
-    def get_quota(self):
-        # Each request costs 1 unit per 'part'
-        return self.request_count
+        return all_items, request_count
