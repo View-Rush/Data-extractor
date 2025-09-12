@@ -82,6 +82,7 @@ def main():
             # Calculate bin_id as the hour of the upload time (0-23)
             bin_id = upload_datetime.hour if upload_datetime else None
 
+            # For daily uploads, set current_sample to 0
             if upload_datetime:
                 insert_video_schedule(
                     video_id=video_record["id"],
@@ -98,6 +99,7 @@ def main():
             logger.exception(f"Failed to insert video {video.get('id')}: {e}")
 
     logger.info(f"Inserted {inserted_video_count} videos")
+
 
 def fetch_recent_video_ids(since_time: datetime, upload_playlist_ids: list[str], yt: YouTubeClient) -> list[str]:
     video_ids = []
@@ -121,9 +123,6 @@ def fetch_recent_video_ids(since_time: datetime, upload_playlist_ids: list[str],
 
 
 def event_start_log():
-    logger.info("")
-    logger.info("=" * 60)
-    logger.info(f"Starting fetch_new_uploads run at {datetime.now(timezone.utc).isoformat()}")
     logger.info("=" * 60)
     logger.info("")
 

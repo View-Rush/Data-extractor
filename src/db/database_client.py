@@ -275,13 +275,13 @@ def get_current_sample(video_id: str) -> int:
     result = execute_query(query, (video_id,), fetch=True)
     return result[0] if result else None
 
-def fetch_videos_for_bin_paginated(bin_id: int, batch_size: int = 100, offset: int = 0):
+def fetch_videos_for_bin_paginated(bin_id: int, batch_size: int = 100, offset: int = 0, sample_limit: int = 30):
     query = """
     SELECT vs.video_id
     FROM video_schedule vs
-    WHERE vs.bin_id = %s AND vs.current_sample < 31
+    WHERE vs.bin_id = %s AND vs.current_sample < %s
     ORDER BY vs.upload_datetime
     OFFSET %s
     LIMIT %s;
     """
-    return execute_query(query, (bin_id, offset, batch_size), fetch=True)
+    return execute_query(query, (bin_id, sample_limit, offset, batch_size), fetch=True)

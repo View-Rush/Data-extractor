@@ -41,7 +41,8 @@ def main():
     video_ids = []
 
     while True:
-        batch = fetch_videos_for_bin_paginated(current_hour, batch_size=batch_size, offset=offset)
+        # Limit 30 because 0 indexed
+        batch = fetch_videos_for_bin_paginated(current_hour, batch_size=batch_size, offset=offset, sample_limit=30)
         if not batch:
             break
         video_ids.extend([row[0] for row in batch])
@@ -81,6 +82,7 @@ def main():
                 comment_count=comment_count
             )
 
+            # 0 indexed
             day_index = get_current_sample(video_id)[0]
 
             logger.info(f"Video {video_id} has {day_index} samples")
